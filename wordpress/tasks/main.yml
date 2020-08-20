@@ -1,0 +1,21 @@
+---
+# tasks file for wordpress
+- name: deploying my-sql paswword
+  k8s:
+    state: present
+    merge_type: merge
+    definition: "{{ lookup('template', 'mysql-pass.yaml.j2') | from_yaml }}"
+
+
+- name: deploying mysql
+  k8s:
+    state: present
+    merge_type: merge
+    definition: "{{ lookup('template', 'mysql.yaml.j2') | from_yaml }}"
+
+
+- name: deploying wordpress
+  k8s:
+    state: present
+    merge_type: merge
+    definition: "{{ lookup('template', 'wordpress.yaml.j2') | from_yaml }}"
