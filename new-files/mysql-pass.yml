@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-pass
+  namespace: testing
+  labels:
+    app: wordpress
+data:
+  mysql-root-password: MTIzNDU=
+  mysql-database:
+  mysql-user:
+  mysql-host:
+
+
+
