@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: 
-  namespace: 
+  name: {{ template "mysql.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: 
+    app: {{ template "mysql.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
-{{- with .Values.deploymentAnnotations }}
+
   annotations:
 {{ toYaml . | indent 4 }}
 {{- end }}

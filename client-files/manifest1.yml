@@ -1,0 +1,150 @@
+
+
+# MySQL password - stage
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-pass-stage
+  namespace: testing
+data:
+  password: REItUGFzczEyMw==
+
+
+
+
+# MySQL Deployment - stage
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-stage
+  namespace: testing
+  labels:
+    app: mysql-stage
+    managed-by: ansible
+spec:
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql-stage
+        managed-by: ansible
+        tier: database
+    spec:
+      containers:
+        - image: mysql:5.6
+          name: mysql-stage
+          env:
+            - name: MYSQL_DATABASE
+              value: db
+            - name: MYSQL_USER
+              value: db_user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-pass-stage
+                  key: password
+            - name: MYSQL_RANDOM_ROOT_PASSWORD
+              value: 'yes'
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1024Mi
+            requests:
+              cpu: "200m"
+              memory: 512Mi
+          ports:
+            - containerPort: 3306
+              name: mysql-stage
+          volumeMounts:
+            - name: mysql-stage
+              mountPath: /var/lib/mysql
+              subPath: mysql
+      volumes:
+        - name: mysql-stage
+          persistentVolumeClaim:
+            claimName: mysql-claim-stage
+
+
+# MySQL service - stage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-stage
+  namespace: testing
+  labels:
+    app: mysql-stage
+    managed-by: ansible
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: mysql-stage
+    tier: database
+
+
+# PHP Deployment - stage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-stage
+  namespace: testing
+  labels:
+    app: php-stage
+    managed-by: ansible
+spec:
+  selector:
+    matchLabels:
+      app: php-stage
+      tier: frontend
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: php-stage
+        managed-by: ansible
+        tier: frontend
+    spec:
+      containers:
+      - image: wordpress:1
+        name: php-stage
+        env:
+        - name: MYSQL_HOST
+          value: mysql-stage
+        - name: MYSQL_DATABASE
+          value: db
+        - name: MYSQL_USER
+          value: db_user
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass-stage
+              key: password
+        ports:
+        - containerPort: 80
+          name: php-stage
+
+
+# PHP Service - stage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-stage
+  namespace: testing
+  labels:
+    app: php-stage
+    managed-by: ansible
+spec:
+  selector:
+    app: php-stage
+    tier: frontend
+  ports:
+    - port: 80
+  type: NodePort
+

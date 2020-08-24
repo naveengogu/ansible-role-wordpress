@@ -1,6 +1,6 @@
 ---
 # tasks file for wordpress
-- name: deploying my-sql paswword
+- name: deploying mysql secrets
   k8s:
     state: present
     merge_type: merge
