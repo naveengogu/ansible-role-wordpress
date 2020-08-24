@@ -48,24 +48,10 @@ spec:
                   key: password
             - name: MYSQL_RANDOM_ROOT_PASSWORD
               value: 'yes'
-          resources:
-            limits:
-              cpu: "1"
-              memory: 1024Mi
-            requests:
-              cpu: "200m"
-              memory: 512Mi
           ports:
             - containerPort: 3306
               name: mysql-stage
-          volumeMounts:
-            - name: mysql-stage
-              mountPath: /var/lib/mysql
-              subPath: mysql
-      volumes:
-        - name: mysql-stage
-          persistentVolumeClaim:
-            claimName: mysql-claim-stage
+
 
 
 # MySQL service - stage
